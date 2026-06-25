@@ -1,0 +1,159 @@
+import { useState } from 'react';
+import type { Answer, Question } from '../types';
+import { generateEndlessQuestion, checkAnswer } from '../question';
+import { playTone } from '../audio';
+
+interface Props {
+  onBack: () => void;
+}
+
+export default function EndlessPage({ onBack }: Props) {
+  const [q, setQ] = useState<Question>(() => generateEndlessQuestion(0));
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(() => Number(localStorage.getItem('endless_best') ?? 0));
+  const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
+  const [disabled, setDisabled] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const playA = () => {
+    if (q.type === 'pitch') playTone(q.aFreq, 0);
+    else playTone(440, q.aGain - 5);
+  };
+  const playB = () => {
+    if (q.type === 'pitch') playTone(q.bFreq, 0);
+    else playTone(440, q.bGain - 5);
+  };
+
+  const judge = async (answer: Answer) => {
+    if (disabled) return;
+    setDisabled(true);
+    const correct = checkAnswer(q, answer);
+    setResult(correct ? 'correct' : 'wrong');
+
+    await new Promise(r => setTimeout(r, 900));
+    setResult(null);
+
+    if (!correct) {
+      if (streak > best) {
+        setBest(streak);
+        localStorage.setItem('endless_best', String(streak));
+      }
+      setFailed(true);
+      setDisabled(false);
+      return;
+    }
+
+    const next = streak + 1;
+    setStreak(next);
+    setQ(generateEndlessQuestion(next));
+    setDisabled(false);
+  };
+
+  const retry = () => {
+    setStreak(0);
+    setFailed(false);
+    setQ(generateEndlessQuestion(0));
+  };
+
+  const levelForStreak = Math.min(Math.floor(streak / 3) + 1, 5);
+
+  const pitchBtns: { label: string; answer: Answer; color: string }[] = [
+    { label: 'A の方が高い', answer: 'A',    color: '#6C63FF' },
+    { label: 'B の方が高い', answer: 'B',    color: '#48CAE4' },
+    { label: 'どちらも同じ', answer: 'same', color: '#FFD166' },
+  ];
+  const decibelBtns: { label: string; answer: Answer; color: string }[] = [
+    { label: 'A の方が大きい', answer: 'A',    color: '#FF6B9D' },
+    { label: 'B の方が大きい', answer: 'B',    color: '#FFB347' },
+    { label: 'どちらも同じ',   answer: 'same', color: '#A855F7' },
+  ];
+  const btns = q.type === 'pitch' ? pitchBtns : decibelBtns;
+
+  return (
+    <div className="endless-page">
+      <div className="endless-header">
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button className="back-btn" style={{ position: 'static' }} onClick={onBack}>‹</button>
+          <h1>エンドレスモード</h1>
+        </div>
+      </div>
+
+      <div className="streak-board">
+        <div className="streak-card current">
+          <div className="s-label">現在の連続正解</div>
+          <div className="s-value">{streak}</div>
+        </div>
+        <div className="streak-card best">
+          <div className="s-label">ベスト</div>
+          <div className="s-value">{best}</div>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 24px' }}>
+        <div className="type-badge">
+          {q.type === 'pitch' ? '🎼 周波数テスト' : '🔊 音量テスト'}
+          <span style={{ marginLeft: 8, color: '#888' }}>Lv.{levelForStreak}</span>
+        </div>
+      </div>
+
+      <div className="progress-wrap" style={{ marginTop: 16 }}>
+        <div className="progress-label">次のレベルアップまで: {3 - (streak % 3)} 問</div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${(streak % 3) / 3 * 100}%`, background: 'linear-gradient(90deg,#06D6A0,#1B9AAA)' }} />
+        </div>
+      </div>
+
+      <div className="play-area">
+        <button className="play-btn" style={{ background: 'linear-gradient(135deg,#6C63FF,#9B8FFF)' }} onClick={playA}>
+          <span className="play-icon">▶</span>A
+        </button>
+        <button className="play-btn" style={{ background: 'linear-gradient(135deg,#48CAE4,#00B4D8)' }} onClick={playB}>
+          <span className="play-icon">▶</span>B
+        </button>
+      </div>
+
+      <p className="question-text">{q.type === 'pitch' ? '周波数が高いのはどちら？' : '音が大きいのはどちら？'}</p>
+      <p className="question-sub">ミスしたら終了！何問連続で正解できる？</p>
+
+      <div className="answer-area">
+        {btns.map(b => (
+          <button key={b.answer} className="answer-btn" style={{ background: b.color }} disabled={disabled} onClick={() => judge(b.answer)}>
+            {b.label}
+          </button>
+        ))}
+      </div>
+
+      {result && (
+        <div className="result-overlay">
+          <span className="result-mark" style={{ color: result === 'correct' ? '#06D6A0cc' : '#EF476Fcc' }}>
+            {result === 'correct' ? '◯' : '✕'}
+          </span>
+        </div>
+      )}
+
+      {failed && (
+        <div className="endless-fail-overlay">
+          <div className="fail-dialog">
+            <div className="fail-emoji">😢</div>
+            <h2>ゲームオーバー</h2>
+            <div className="fail-scores">
+              <div className="fail-score-item current">
+                <div className="fs-label">今回</div>
+                <div className="fs-value">{streak}</div>
+              </div>
+              <div className="fail-score-item best">
+                <div className="fs-label">ベスト</div>
+                <div className="fs-value">{Math.max(streak, best)}</div>
+              </div>
+            </div>
+            {streak > best && <p style={{ color: '#06D6A0', fontWeight: 700, marginBottom: 12 }}>🎉 新記録！</p>}
+            <div className="fail-btns">
+              <button className="fail-btn retry" onClick={retry}>もう一度</button>
+              <button className="fail-btn go-home" onClick={onBack}>ホームへ</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
