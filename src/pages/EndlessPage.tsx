@@ -106,13 +106,18 @@ export default function EndlessPage({ onBack }: Props) {
 
   return (
     <div className="endless-page">
-      <div className="endless-header">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <button className="back-btn" style={{ position: 'static' }} onClick={onBack}>‹</button>
-          <h1>エンドレスモード</h1>
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <div className="navbar-logo">
+            <div className="logo-icon" style={{ background: 'linear-gradient(135deg,#06D6A0,#1B9AAA)' }}>♾️</div>
+            <span style={{ color: '#06D6A0' }}>エンドレスモード</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="ranking-header-btn" onClick={loadRanking}>🏆</button>
+            <button className="navbar-back" onClick={onBack}>← 戻る</button>
+          </div>
         </div>
-        <button className="ranking-header-btn" onClick={loadRanking}>🏆</button>
-      </div>
+      </nav>
 
       <div className="streak-board">
         <div className="streak-card current">

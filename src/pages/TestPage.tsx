@@ -3,8 +3,8 @@ import type { QuestionType, Answer } from '../types';
 import { generatePitchQuestion, generateDecibelQuestion, checkAnswer } from '../question';
 import { playTone } from '../audio';
 
-const PITCH_COLORS = ['#6C63FF','#48CAE4','#06D6A0','#FFD166','#EF476F'];
-const DECIBEL_COLORS = ['#FF6B9D','#FFB347','#FF6B6B','#A855F7','#06D6A0'];
+const PITCH_COLORS = ['#6C63FF', '#48CAE4', '#06D6A0', '#FFD166', '#EF476F'];
+const DECIBEL_COLORS = ['#FF6B9D', '#FFB347', '#FF6B6B', '#A855F7', '#06D6A0'];
 
 const MAX = 10;
 
@@ -65,28 +65,36 @@ export default function TestPage({ type, level, onBack }: Props) {
     setDisabled(false);
   };
 
-  const pitchBtns: { label: string; answer: Answer; color: string }[] = [
-    { label: 'A の方が高い', answer: 'A',    color: '#6C63FF' },
-    { label: 'B の方が高い', answer: 'B',    color: '#48CAE4' },
-    { label: 'どちらも同じ', answer: 'same', color: '#FFD166' },
+  const pitchBtns: { label: string; answer: Answer; bg: string }[] = [
+    { label: 'A の方が高い', answer: 'A',    bg: `${PITCH_COLORS[0]}22` },
+    { label: 'B の方が高い', answer: 'B',    bg: `${PITCH_COLORS[1]}22` },
+    { label: 'どちらも同じ', answer: 'same', bg: `${PITCH_COLORS[3]}22` },
   ];
-  const decibelBtns: { label: string; answer: Answer; color: string }[] = [
-    { label: 'A の方が大きい', answer: 'A',    color: '#FF6B9D' },
-    { label: 'B の方が大きい', answer: 'B',    color: '#FFB347' },
-    { label: 'どちらも同じ',   answer: 'same', color: '#A855F7' },
+  const decibelBtns: { label: string; answer: Answer; bg: string }[] = [
+    { label: 'A の方が大きい', answer: 'A',    bg: `${DECIBEL_COLORS[0]}22` },
+    { label: 'B の方が大きい', answer: 'B',    bg: `${DECIBEL_COLORS[1]}22` },
+    { label: 'どちらも同じ',   answer: 'same', bg: `${DECIBEL_COLORS[3]}22` },
   ];
   const btns = type === 'pitch' ? pitchBtns : decibelBtns;
+  const borderColors = type === 'pitch'
+    ? [PITCH_COLORS[0], PITCH_COLORS[1], PITCH_COLORS[3]]
+    : [DECIBEL_COLORS[0], DECIBEL_COLORS[1], DECIBEL_COLORS[3]];
 
   return (
     <div className="test-page">
-      <div className="test-header" style={{ background: `${color}22` }}>
-        <div className="test-header-row">
-          <button className="back-btn" style={{ position: 'static', background: `${color}33`, color }} onClick={onBack}>‹</button>
-          <span className="test-title" style={{ color }}>{type === 'pitch' ? '周波数テスト' : '音量テスト'} Level {level}</span>
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <div className="navbar-logo">
+            <div className="logo-icon" style={{ background: `${color}33` }}>
+              {type === 'pitch' ? '🎼' : '🔊'}
+            </div>
+            <span style={{ color }}>{type === 'pitch' ? '周波数' : '音量'}テスト Level {level}</span>
+          </div>
+          <button className="navbar-back" onClick={onBack}>← 戻る</button>
         </div>
-      </div>
+      </nav>
 
-      <div className="progress-wrap" style={{ marginTop: 12 }}>
+      <div className="progress-wrap">
         <div className="progress-label">{answerCount} / {MAX} 問目</div>
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${(answerCount - 1) / MAX * 100}%`, background: color }} />
@@ -106,8 +114,14 @@ export default function TestPage({ type, level, onBack }: Props) {
       <p className="question-sub">A・B を聴いてから答えよう</p>
 
       <div className="answer-area">
-        {btns.map(b => (
-          <button key={b.answer} className="answer-btn" style={{ background: b.color }} disabled={disabled} onClick={() => judge(b.answer)}>
+        {btns.map((b, i) => (
+          <button
+            key={b.answer}
+            className="answer-btn"
+            style={{ background: b.bg, borderColor: `${borderColors[i]}44` }}
+            disabled={disabled}
+            onClick={() => judge(b.answer)}
+          >
             {b.label}
           </button>
         ))}
@@ -129,6 +143,7 @@ export default function TestPage({ type, level, onBack }: Props) {
             <div className="dialog-score" style={{ background: `linear-gradient(135deg,${color},${color}aa)` }}>
               {MAX}問中 {finalCorrect}問 正解
             </div>
+            <br />
             <button className="dialog-btn" onClick={onBack}>もどる</button>
           </div>
         </div>

@@ -1,18 +1,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
-  background: #f0f2f5;
+  font-family: 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+  background: #0f0f1a;
+  color: #e0e0e0;
   min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
 }
 
 #root {
   width: 100%;
-  max-width: 480px;
   min-height: 100dvh;
-  background: white;
-  box-shadow: 0 0 40px rgba(0,0,0,0.08);
 }
