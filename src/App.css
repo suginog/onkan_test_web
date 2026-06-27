@@ -227,5 +227,65 @@
   flex: 1; border: none; border-radius: 12px; padding: 13px;
   font-size: 15px; font-weight: 700; cursor: pointer;
 }
-.fail-btn.retry  { background: linear-gradient(135deg,#06D6A0,#1B9AAA); color: white; }
+.fail-btn.retry   { background: linear-gradient(135deg,#06D6A0,#1B9AAA); color: white; }
+.fail-btn.ranking { background: linear-gradient(135deg,#FFB347,#FF8C00); color: white; }
 .fail-btn.go-home { background: #f3f4f6; color: #333; }
+
+/* Submit score */
+.submit-area { margin: 16px 0; }
+.submit-label { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 8px; }
+.name-input {
+  width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 12px;
+  font-size: 16px; text-align: center; outline: none;
+  transition: border-color 0.2s;
+}
+.name-input:focus { border-color: #06D6A0; }
+.submit-btn {
+  width: 100%; margin-top: 10px; padding: 11px;
+  border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
+  background: linear-gradient(135deg, #06D6A0, #1B9AAA); color: white;
+  transition: opacity 0.2s;
+}
+.submit-btn:disabled { opacity: 0.5; cursor: default; }
+.submitted-msg { color: #06D6A0; font-weight: 700; font-size: 14px; margin: 12px 0; }
+
+/* Ranking header button */
+.ranking-header-btn {
+  position: absolute; top: 14px; right: 16px;
+  background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
+  width: 40px; height: 40px; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Ranking dialog */
+.ranking-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 30;
+}
+.ranking-dialog {
+  background: white; border-radius: 24px; padding: 24px;
+  width: 360px; max-height: 80vh; overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+.ranking-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.ranking-top h2 { font-size: 20px; font-weight: 800; }
+.ranking-close {
+  background: #f3f4f6; border: none; border-radius: 50%;
+  width: 32px; height: 32px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ranking-loading { text-align: center; color: #888; padding: 32px 0; }
+.ranking-list { display: flex; flex-direction: column; gap: 6px; }
+.ranking-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 12px; background: #f9fafb;
+}
+.ranking-row.top3 { background: #fffbeb; }
+.rank-num { width: 32px; text-align: center; font-size: 18px; font-weight: 800; }
+.rank-name { flex: 1; font-size: 15px; font-weight: 600; color: #333; }
+.rank-streak { font-size: 18px; font-weight: 800; color: #06D6A0; }
+.rank-streak small { font-size: 11px; color: #888; font-weight: 600; margin-left: 2px; }
+.rank-level { font-size: 12px; color: #888; font-weight: 600; min-width: 36px; text-align: right; }

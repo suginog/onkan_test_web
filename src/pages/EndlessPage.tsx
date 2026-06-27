@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Answer, Question } from '../types';
 import { generateEndlessQuestion, checkAnswer } from '../question';
 import { playTone } from '../audio';
+import { submitScore, fetchRanking, type RankingEntry } from '../firebase';
 
 interface Props {
   onBack: () => void;
@@ -14,6 +15,14 @@ export default function EndlessPage({ onBack }: Props) {
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null);
   const [disabled, setDisabled] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const [showRanking, setShowRanking] = useState(false);
+  const [ranking, setRanking] = useState<RankingEntry[]>([]);
+  const [loadingRanking, setLoadingRanking] = useState(false);
+
+  const [name, setName] = useState(() => localStorage.getItem('player_name') ?? '');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const playA = () => {
     if (q.type === 'pitch') playTone(q.aFreq, 0);
@@ -39,6 +48,7 @@ export default function EndlessPage({ onBack }: Props) {
         localStorage.setItem('endless_best', String(streak));
       }
       setFailed(true);
+      setSubmitted(false);
       setDisabled(false);
       return;
     }
@@ -52,8 +62,33 @@ export default function EndlessPage({ onBack }: Props) {
   const retry = () => {
     setStreak(0);
     setFailed(false);
+    setSubmitted(false);
     setQ(generateEndlessQuestion(0));
   };
+
+  const handleSubmit = async () => {
+    if (!name.trim() || submitting) return;
+    setSubmitting(true);
+    localStorage.setItem('player_name', name.trim());
+    const maxLevel = Math.min(Math.floor(streak / 3) + 1, 5);
+    await submitScore(name.trim(), streak, maxLevel);
+    setSubmitted(true);
+    setSubmitting(false);
+  };
+
+  const loadRanking = async () => {
+    setShowRanking(true);
+    setLoadingRanking(true);
+    const data = await fetchRanking(20);
+    setRanking(data);
+    setLoadingRanking(false);
+  };
+
+  useEffect(() => {
+    if (showRanking && !failed) {
+      loadRanking();
+    }
+  }, [showRanking]);
 
   const levelForStreak = Math.min(Math.floor(streak / 3) + 1, 5);
 
@@ -76,6 +111,7 @@ export default function EndlessPage({ onBack }: Props) {
           <button className="back-btn" style={{ position: 'static' }} onClick={onBack}>‹</button>
           <h1>エンドレスモード</h1>
         </div>
+        <button className="ranking-header-btn" onClick={loadRanking}>🏆</button>
       </div>
 
       <div className="streak-board">
@@ -147,10 +183,59 @@ export default function EndlessPage({ onBack }: Props) {
               </div>
             </div>
             {streak > best && <p style={{ color: '#06D6A0', fontWeight: 700, marginBottom: 12 }}>🎉 新記録！</p>}
+
+            {streak > 0 && !submitted && (
+              <div className="submit-area">
+                <p className="submit-label">ランキングに登録する</p>
+                <input
+                  className="name-input"
+                  type="text"
+                  placeholder="ニックネーム"
+                  maxLength={12}
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
+                <button className="submit-btn" onClick={handleSubmit} disabled={!name.trim() || submitting}>
+                  {submitting ? '送信中...' : '登録する'}
+                </button>
+              </div>
+            )}
+            {submitted && <p className="submitted-msg">✅ ランキングに登録しました！</p>}
+
             <div className="fail-btns">
               <button className="fail-btn retry" onClick={retry}>もう一度</button>
+              <button className="fail-btn ranking" onClick={() => { loadRanking(); }}>🏆 ランキング</button>
               <button className="fail-btn go-home" onClick={onBack}>ホームへ</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRanking && (
+        <div className="ranking-overlay" onClick={() => setShowRanking(false)}>
+          <div className="ranking-dialog" onClick={e => e.stopPropagation()}>
+            <div className="ranking-top">
+              <h2>🏆 ランキング</h2>
+              <button className="ranking-close" onClick={() => setShowRanking(false)}>✕</button>
+            </div>
+            {loadingRanking ? (
+              <p className="ranking-loading">読み込み中...</p>
+            ) : ranking.length === 0 ? (
+              <p className="ranking-loading">まだ記録がありません</p>
+            ) : (
+              <div className="ranking-list">
+                {ranking.map((r, i) => (
+                  <div key={i} className={`ranking-row ${i < 3 ? 'top3' : ''}`}>
+                    <span className="rank-num">
+                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
+                    </span>
+                    <span className="rank-name">{r.name}</span>
+                    <span className="rank-streak">{r.streak}<small>連続</small></span>
+                    <span className="rank-level">Lv.{r.maxLevel}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
