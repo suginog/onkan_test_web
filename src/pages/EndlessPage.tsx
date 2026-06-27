@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Answer, Question } from '../types';
 import { generateEndlessQuestion, checkAnswer } from '../question';
-import { playTone, playSE } from '../audio';
+import { playTone, playSE, stopBGM } from '../audio';
 import { submitScore, fetchRanking, type RankingEntry } from '../firebase';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function EndlessPage({ onBack }: Props) {
+  useEffect(() => { stopBGM(); }, []);
   const [q, setQ] = useState<Question>(() => generateEndlessQuestion(0));
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(() => Number(localStorage.getItem('endless_best') ?? 0));

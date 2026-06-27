@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { QuestionType, Answer } from '../types';
 import { generatePitchQuestion, generateDecibelQuestion, checkAnswer } from '../question';
-import { playTone, playSE } from '../audio';
+import { playTone, playSE, stopBGM } from '../audio';
 
 const PITCH_COLORS = ['#6C63FF', '#48CAE4', '#06D6A0', '#FFD166', '#EF476F'];
 const DECIBEL_COLORS = ['#FF6B9D', '#FFB347', '#FF6B6B', '#A855F7', '#06D6A0'];
@@ -15,6 +15,7 @@ interface Props {
 }
 
 export default function TestPage({ type, level, onBack }: Props) {
+  useEffect(() => { stopBGM(); }, []);
   const color = (type === 'pitch' ? PITCH_COLORS : DECIBEL_COLORS)[level - 1];
   const gen = useCallback(() =>
     type === 'pitch' ? generatePitchQuestion(level) : generateDecibelQuestion(level),
