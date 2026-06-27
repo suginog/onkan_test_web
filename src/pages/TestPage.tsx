@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { QuestionType, Answer } from '../types';
 import { generatePitchQuestion, generateDecibelQuestion, checkAnswer } from '../question';
-import { playTone } from '../audio';
+import { playTone, playSE } from '../audio';
 
 const PITCH_COLORS = ['#6C63FF', '#48CAE4', '#06D6A0', '#FFD166', '#EF476F'];
 const DECIBEL_COLORS = ['#FF6B9D', '#FFB347', '#FF6B6B', '#A855F7', '#06D6A0'];
@@ -42,6 +42,7 @@ export default function TestPage({ type, level, onBack }: Props) {
     setDisabled(true);
     const correct = checkAnswer(q, answer);
     setResult(correct ? 'correct' : 'wrong');
+    playSE(correct ? 'pinpon' : 'batsu');
     const newCorrect = correctCount + (correct ? 1 : 0);
 
     await new Promise(r => setTimeout(r, 900));
@@ -53,6 +54,7 @@ export default function TestPage({ type, level, onBack }: Props) {
         const cur = Number(localStorage.getItem(key) ?? 0);
         if (level > cur) localStorage.setItem(key, String(level));
       }
+      playSE(newCorrect === MAX ? 'clear' : 'fail');
       setFinalCorrect(newCorrect);
       setShowDialog(true);
       setDisabled(false);

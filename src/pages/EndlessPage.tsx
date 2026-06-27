@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Answer, Question } from '../types';
 import { generateEndlessQuestion, checkAnswer } from '../question';
-import { playTone } from '../audio';
+import { playTone, playSE } from '../audio';
 import { submitScore, fetchRanking, type RankingEntry } from '../firebase';
 
 interface Props {
@@ -38,11 +38,13 @@ export default function EndlessPage({ onBack }: Props) {
     setDisabled(true);
     const correct = checkAnswer(q, answer);
     setResult(correct ? 'correct' : 'wrong');
+    playSE(correct ? 'pinpon' : 'batsu');
 
     await new Promise(r => setTimeout(r, 900));
     setResult(null);
 
     if (!correct) {
+      playSE('fail');
       if (streak > best) {
         setBest(streak);
         localStorage.setItem('endless_best', String(streak));

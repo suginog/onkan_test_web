@@ -1,14 +1,25 @@
 import type { Mode } from '../types';
-import { resume } from '../audio';
+import { resume, playSE, playBGM, stopBGM } from '../audio';
 
 interface Props {
   onSelect: (mode: Mode, level?: number) => void;
 }
 
 export default function HomePage({ onSelect }: Props) {
-  const handle = (m: Mode) => { resume(); onSelect(m); };
+  const handle = (m: Mode) => {
+    resume();
+    playSE('button');
+    stopBGM();
+    onSelect(m);
+  };
+
+  const startBGM = () => {
+    resume();
+    playBGM();
+  };
+
   return (
-    <div className="home">
+    <div className="home" onClick={startBGM}>
       <nav className="navbar">
         <div className="navbar-inner">
           <div className="navbar-logo">

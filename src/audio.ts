@@ -1,4 +1,5 @@
 const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+const BASE = import.meta.env.BASE_URL;
 
 export function playTone(frequency: number, gainDb: number, duration = 1.2): void {
   const gain = ctx.createGain();
@@ -20,4 +21,28 @@ export function playTone(frequency: number, gainDb: number, duration = 1.2): voi
 
 export function resume() {
   if (ctx.state === 'suspended') ctx.resume();
+}
+
+export function playSE(name: 'button' | 'pinpon' | 'batsu' | 'clear' | 'fail'): void {
+  const audio = new Audio(`${BASE}sounds/${name}.mp3`);
+  audio.volume = 0.6;
+  audio.play().catch(() => {});
+}
+
+let bgmAudio: HTMLAudioElement | null = null;
+
+export function playBGM(): void {
+  if (bgmAudio) return;
+  bgmAudio = new Audio(`${BASE}sounds/shaka.wav`);
+  bgmAudio.loop = true;
+  bgmAudio.volume = 0.3;
+  bgmAudio.play().catch(() => {});
+}
+
+export function stopBGM(): void {
+  if (bgmAudio) {
+    bgmAudio.pause();
+    bgmAudio.currentTime = 0;
+    bgmAudio = null;
+  }
 }
