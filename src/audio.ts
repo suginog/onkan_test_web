@@ -1,7 +1,7 @@
 const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
 const BASE = import.meta.env.BASE_URL;
 
-export function playTone(frequency: number, gainDb: number, duration = 1.2): void {
+export function playTone(frequency: number, gainDb: number, duration = 2.0): void {
   const gain = ctx.createGain();
   const osc = ctx.createOscillator();
 
