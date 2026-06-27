@@ -90,8 +90,6 @@ export default function EndlessPage({ onBack }: Props) {
     }
   }, [showRanking]);
 
-  const levelForStreak = Math.min(Math.floor(streak / 3) + 1, 5);
-
   const pitchBtns: { label: string; answer: Answer; color: string }[] = [
     { label: 'A の方が高い', answer: 'A',    color: '#6C63FF' },
     { label: 'B の方が高い', answer: 'B',    color: '#48CAE4' },
@@ -112,8 +110,8 @@ export default function EndlessPage({ onBack }: Props) {
             <div className="logo-icon" style={{ background: 'linear-gradient(135deg,#06D6A0,#1B9AAA)' }}>♾️</div>
             <span style={{ color: '#06D6A0' }}>エンドレスモード</span>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="ranking-header-btn" onClick={loadRanking}>🏆</button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+            <button className="navbar-back" onClick={loadRanking}>🏆 ランキング</button>
             <button className="navbar-back" onClick={onBack}>← 戻る</button>
           </div>
         </div>
@@ -133,14 +131,7 @@ export default function EndlessPage({ onBack }: Props) {
       <div style={{ padding: '0 24px' }}>
         <div className="type-badge">
           {q.type === 'pitch' ? '🎼 周波数テスト' : '🔊 音量テスト'}
-          <span style={{ marginLeft: 8, color: '#888' }}>Lv.{levelForStreak}</span>
-        </div>
-      </div>
-
-      <div className="progress-wrap" style={{ marginTop: 16 }}>
-        <div className="progress-label">次のレベルアップまで: {3 - (streak % 3)} 問</div>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${(streak % 3) / 3 * 100}%`, background: 'linear-gradient(90deg,#06D6A0,#1B9AAA)' }} />
+          <span style={{ marginLeft: 8, color: '#888' }}>最高難度</span>
         </div>
       </div>
 

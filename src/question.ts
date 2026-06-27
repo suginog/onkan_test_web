@@ -38,8 +38,8 @@ export function generateDecibelQuestion(level: number): Question {
   return { type: 'decibel', aFreq: baseFreq, bFreq: baseFreq, aGain, bGain, correctAnswer, level };
 }
 
-export function generateEndlessQuestion(streak: number): Question {
-  const level = Math.min(Math.floor(streak / 3) + 1, 5);
+export function generateEndlessQuestion(_streak: number): Question {
+  const level = 5;
   const type = Math.random() < 0.5 ? 'pitch' : 'decibel';
   return type === 'pitch' ? generatePitchQuestion(level) : generateDecibelQuestion(level);
 }
