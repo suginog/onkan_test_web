@@ -9,7 +9,7 @@ export default function HomePage({ onSelect }: Props) {
   const handle = (m: Mode) => {
     resume();
     playSE('button');
-    if (m === 'endless') stopBGM();
+    stopBGM();
     onSelect(m);
   };
 
