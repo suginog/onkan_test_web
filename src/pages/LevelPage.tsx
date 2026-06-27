@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { QuestionType } from '../types';
+import { playSE, stopBGM } from '../audio';
 
 const PITCH_COLORS = ['#6C63FF', '#48CAE4', '#06D6A0', '#FFD166', '#EF476F'];
 const DECIBEL_COLORS = ['#FF6B9D', '#FFB347', '#FF6B6B', '#A855F7', '#06D6A0'];
@@ -22,6 +23,8 @@ export default function LevelPage({ type, onBack, onStart, onGoTest }: Props) {
   }, [key]);
 
   const handleLevel = (l: number) => {
+    playSE('button');
+    stopBGM();
     onStart(l);
     onGoTest();
   };
