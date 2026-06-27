@@ -7,7 +7,8 @@ export function playTone(frequency: number, gainDb: number, duration = 2.0): voi
 
   const linearGain = Math.pow(10, gainDb / 20);
   gain.gain.setValueAtTime(linearGain * 0.3, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  gain.gain.setValueAtTime(linearGain * 0.3, ctx.currentTime + duration - 0.05);
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
 
   osc.type = 'sine';
   osc.frequency.setValueAtTime(frequency, ctx.currentTime);
